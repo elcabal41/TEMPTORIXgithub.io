@@ -1,24 +1,58 @@
-// Countdown Timer Logic
-let countdownDate = new Date().getTime() + 86400000; // 24 horas desde ahora
+// Toggle Menu Dropdown
+document.getElementById('menuIcon').addEventListener('click', function () {
+  const menuDropdown = document.getElementById('menuDropdown');
+  menuDropdown.classList.toggle('active');
+});
 
-function updateCountdown() {
-  const now = new Date().getTime();
-  let distance = countdownDate - now;
+// Custom Play Button
+const playButton = document.getElementById('playButton');
+const videoPlayer = document.getElementById('videoPlayer');
 
-  if (distance <= 0) {
-    // Reiniciar el temporizador
-    countdownDate = new Date().getTime() + 86400000; // Reiniciar a 24 horas
-    distance = countdownDate - now;
+// Función para manejar el botón de reproducción personalizado
+playButton.addEventListener('click', function () {
+  if (videoPlayer.paused) {
+    videoPlayer.play();
+    playButton.style.display = 'none'; // Ocultar el botón al reproducir
+  } else {
+    videoPlayer.pause();
   }
+});
 
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+// Mostrar el botón de reproducción si el video se pausa manualmente
+videoPlayer.addEventListener('pause', function () {
+  playButton.style.display = 'flex';
+});
 
-  document.getElementById('hours').innerText = String(hours).padStart(2, '0');
-  document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
-  document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+// Ocultar la imagen de portada cuando el video comienza a reproducirse
+videoPlayer.addEventListener('play', function () {
+  videoPlayer.setAttribute('poster', ''); // Eliminar la imagen de portada
+});
+
+// Lazy Loading para Imágenes
+function isElementInViewport(el) {
+  const rect = el.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
 }
 
-setInterval(updateCountdown, 1000);
-updateCountdown(); // Llamada inicial
+function lazyLoadImages() {
+  const images = document.querySelectorAll('.lazy-load');
+  images.forEach((img) => {
+    if (isElementInViewport(img)) {
+      const dataSrc = img.getAttribute('data-src');
+      if (dataSrc && !img.classList.contains('loaded')) {
+        img.src = dataSrc;
+        img.onload = () => img.classList.add('loaded');
+      }
+    }
+  });
+}
+
+window.addEventListener('scroll', lazyLoadImages);
+window.addEventListener('resize', lazyLoadImages);
+window.addEventListener('load', lazyLoadImages);
+document.addEventListener('touchmove', lazyLoadImages);
